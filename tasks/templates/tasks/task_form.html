@@ -1,0 +1,48 @@
+{% extends 'tasks/base.html' %}
+{% block content %}
+<h2 class="mb-4">{% if task %}Edit Task{% else %}Create Task{% endif %}</h2>
+
+<form method="post" class="card p-4 shadow-sm">
+    {% csrf_token %}
+
+    <div class="mb-3">
+        <label class="form-label">Title</label>
+        <input type="text" name="title" class="form-control"
+               value="{% if task %}{{ task.title }}{% endif %}" required>
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Description</label>
+        <textarea name="description" class="form-control">{% if task %}{{ task.description }}{% endif %}</textarea>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6 mb-3">
+            <label class="form-label">Status</label>
+            <select name="status" class="form-select">
+                <option value="TODO" {% if task and task.status == 'TODO' %}selected{% endif %}>To Do</option>
+                <option value="IN_PROGRESS" {% if task and task.status == 'IN_PROGRESS' %}selected{% endif %}>In Progress</option>
+                <option value="DONE" {% if task and task.status == 'DONE' %}selected{% endif %}>Done</option>
+            </select>
+        </div>
+        <div class="col-md-6 mb-3">
+            <label class="form-label">Priority</label>
+            <select name="priority" class="form-select">
+                <option value="HIGH" {% if task and task.priority == 'HIGH' %}selected{% endif %}>High</option>
+                <option value="MEDIUM" {% if task and task.priority == 'MEDIUM' %}selected{% endif %}>Medium</option>
+                <option value="LOW" {% if task and task.priority == 'LOW' %}selected{% endif %}>Low</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Due Date</label>
+        <input type="date" name="due_date" class="form-control"
+               value="{% if task and task.due_date %}{{ task.due_date|date:'Y-m-d' }}{% endif %}">
+    </div>
+
+    <button type="submit" class="btn btn-primary">
+        {% if task %}Update{% else %}Save{% endif %}
+    </button>
+</form>
+{% endblock %}

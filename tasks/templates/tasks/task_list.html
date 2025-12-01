@@ -1,0 +1,159 @@
+{% extends 'tasks/base.html' %}
+
+{% block content %}
+<h2 class="mb-4">My Tasks</h2>
+<!-- Stats cards -->
+<div class="row mb-4">
+    <div class="col-md-3 mb-2">
+        <div class="card text-bg-primary">
+            <div class="card-body">
+                <h6 class="card-title">Total (current filter)</h6>
+                <h3 class="card-text">{{ total_tasks }}</h3>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-2">
+        <div class="card text-bg-success">
+            <div class="card-body">
+                <h6 class="card-title">Completed</h6>
+                <h3 class="card-text">{{ done_tasks }}</h3>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-2">
+        <div class="card text-bg-warning">
+            <div class="card-body">
+                <h6 class="card-title">In Progress</h6>
+                <h3 class="card-text">{{ in_progress_tasks }}</h3>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-2">
+        <div class="card text-bg-secondary">
+            <div class="card-body">
+                <h6 class="card-title">To Do</h6>
+                <h3 class="card-text">{{ todo_tasks }}</h3>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-4 mb-2">
+        <div class="card border-danger">
+            <div class="card-body">
+                <h6 class="card-title text-danger">High Priority</h6>
+                <h3 class="card-text">{{ high_priority }}</h3>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4 mb-2">
+        <div class="card border-warning">
+            <div class="card-body">
+                <h6 class="card-title text-warning">Medium Priority</h6>
+                <h3 class="card-text">{{ medium_priority }}</h3>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4 mb-2">
+        <div class="card border-success">
+            <div class="card-body">
+                <h6 class="card-title text-success">Low Priority</h6>
+                <h3 class="card-text">{{ low_priority }}</h3>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- Search and filters -->
+<form method="get" class="mb-3">
+    <div class="row g-2 align-items-center">
+        <div class="col-md-4">
+            <input type="text" name="q" class="form-control"
+                   placeholder="Search by title or description"
+                   value="{{ q }}">
+        </div>
+        <div class="col-md-2">
+            <button type="submit" class="btn btn-primary w-100">Search</button>
+        </div>
+        <div class="col-md-2">
+            <a href="{% url 'task_list' %}" class="btn btn-outline-secondary w-100">Clear</a>
+        </div>
+    </div>
+</form>
+
+<!-- Status filter chips -->
+<div class="mb-2">
+    <strong>Status:</strong>
+    <div class="btn-group btn-group-sm ms-2" role="group">
+        <a href="?q={{ q }}&status=ALL&priority={{ current_priority }}"
+           class="btn {% if current_status == 'ALL' %}btn-primary{% else %}btn-outline-secondary{% endif %}">
+            All
+        </a>
+        <a href="?q={{ q }}&status=TODO&priority={{ current_priority }}"
+           class="btn {% if current_status == 'TODO' %}btn-primary{% else %}btn-outline-secondary{% endif %}">
+            To Do
+        </a>
+        <a href="?q={{ q }}&status=IN_PROGRESS&priority={{ current_priority }}"
+           class="btn {% if current_status == 'IN_PROGRESS' %}btn-primary{% else %}btn-outline-secondary{% endif %}">
+            In Progress
+        </a>
+        <a href="?q={{ q }}&status=DONE&priority={{ current_priority }}"
+           class="btn {% if current_status == 'DONE' %}btn-primary{% else %}btn-outline-secondary{% endif %}">
+            Done
+        </a>
+    </div>
+</div>
+
+<!-- Priority filter chips -->
+<div class="mb-4">
+    <strong>Priority:</strong>
+    <div class="btn-group btn-group-sm ms-2" role="group">
+        <a href="?q={{ q }}&status={{ current_status }}&priority=ALL"
+           class="btn {% if current_priority == 'ALL' %}btn-primary{% else %}btn-outline-secondary{% endif %}">
+            All
+        </a>
+        <a href="?q={{ q }}&status={{ current_status }}&priority=HIGH"
+           class="btn {% if current_priority == 'HIGH' %}btn-primary{% else %}btn-outline-secondary{% endif %}">
+            High
+        </a>
+        <a href="?q={{ q }}&status={{ current_status }}&priority=MEDIUM"
+           class="btn {% if current_priority == 'MEDIUM' %}btn-primary{% else %}btn-outline-secondary{% endif %}">
+            Medium
+        </a>
+        <a href="?q={{ q }}&status={{ current_status }}&priority=LOW"
+           class="btn {% if current_priority == 'LOW' %}btn-primary{% else %}btn-outline-secondary{% endif %}">
+            Low
+        </a>
+    </div>
+</div>
+
+{% if tasks %}
+    <div class="row">
+        {% for task in tasks %}
+            <div class="col-md-6">
+                <div class="card shadow-sm mb-3">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ task.title }}</h5>
+                        <p class="card-text">{{ task.description }}</p>
+
+                        <span class="badge bg-primary">{{ task.get_status_display }}</span>
+                        <span class="badge bg-warning text-dark">{{ task.get_priority_display }}</span>
+                        {% if task.due_date %}
+                            <span class="badge bg-info text-dark">Due: {{ task.due_date }}</span>
+                        {% endif %}
+
+                        <div class="mt-3">
+                            <a href="{% url 'task_edit' task.pk %}" class="btn btn-sm btn-outline-primary">Edit</a>
+                            <a href="{% url 'task_delete' task.pk %}" class="btn btn-sm btn-outline-danger">Delete</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+{% else %}
+    <p class="text-muted">No tasks found for this filter/search.</p>
+{% endif %}
+{% endblock %}
